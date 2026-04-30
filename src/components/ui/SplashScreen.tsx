@@ -1,10 +1,10 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const letterVariants = {
+const letterVariants: Variants = {
   hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
   visible: (i: number) => ({
     opacity: 1,
@@ -18,7 +18,7 @@ const letterVariants = {
   }),
 };
 
-const logoVariants = {
+const logoVariants: Variants = {
   hidden: { opacity: 0, scale: 0.8, filter: "blur(10px)" },
   visible: {
     opacity: 1,
