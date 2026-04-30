@@ -36,6 +36,39 @@ export default function SplashScreen() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // Attempt to play a premium UI chime sound using Web Audio API
+    // Note: Browsers may block this if the user hasn't interacted with the document yet.
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        
+        // Frequencies for a premium, soft, futuristic chord (Amaj9)
+        const freqs = [440, 554.37, 659.25, 830.61]; 
+        
+        freqs.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          
+          // Soft attack and smooth decay
+          gain.gain.setValueAtTime(0, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.1 - (i * 0.02), ctx.currentTime + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 2);
+        });
+      }
+    } catch (e) {
+      console.log("Audio autoplay blocked by browser or not supported.");
+    }
+
     // Total animation time is around 2 seconds, then fade out
     const timer = setTimeout(() => {
       setIsVisible(false);
