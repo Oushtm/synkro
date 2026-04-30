@@ -8,6 +8,9 @@ type Persisted = {
 };
 
 function dataDir() {
+  if (process.env.VERCEL) {
+    return path.join("/tmp", "data");
+  }
   return path.join(process.cwd(), "data");
 }
 
