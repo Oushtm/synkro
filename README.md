@@ -30,10 +30,10 @@ npm install
    cp .env.example .env.local
    ```
 
-   - `NEXT_PUBLIC_SUPABASE_URL`  project URL (e.g. `https://<ref>.supabase.co`, **not** the `/rest/v1/` URL)
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`  **anon** key from Supabase **Settings ’ API** (never commit the `service_role` key or put it in `NEXT_PUBLIC_*`)
+   - `NEXT_PUBLIC_SUPABASE_URL`: project URL (e.g. `https://<ref>.supabase.co`, **not** the `/rest/v1/` URL).
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: **anon** key from Supabase **Settings > API** (never commit the `service_role` key or put it in `NEXT_PUBLIC_*`).
 
-2. Create the database table. In Supabase: **SQL Editor ’ New query**, paste the contents of `supabase/migrations/001_appointments.sql`, then **Run**.
+2. Create the database table. In Supabase: open **SQL Editor**, create a new query, paste `supabase/migrations/001_appointments.sql`, then **Run**.
 
 3. Start the dev server:
 
@@ -72,8 +72,8 @@ npm install
 
 ## Legacy
 
-- `legacy-c/`  original C reference implementation
-- `docs/Rapport_Projet_Rendez_Vous.md`  project report (French)
+- `legacy-c/`: original C reference implementation
+- `docs/Rapport_Projet_Rendez_Vous.md`: project report (French)
 
 ## License
 
