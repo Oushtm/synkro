@@ -153,7 +153,13 @@ export function AppShell({ children, user }: { children: ReactNode; user: User |
   }
 
   const email = user?.email ?? "";
-  const initial = email ? email[0]!.toUpperCase() : "?";
+  const meta = user?.user_metadata as { username?: string; full_name?: string } | undefined;
+  const displayName =
+    (meta?.username && String(meta.username).trim()) ||
+    (meta?.full_name && String(meta.full_name).trim()) ||
+    (email ? email.split("@")[0] : "") ||
+    "User";
+  const initial = displayName[0]!.toUpperCase();
 
   return (
     <ToastProvider>
@@ -197,7 +203,8 @@ export function AppShell({ children, user }: { children: ReactNode; user: User |
                   </div>
                 ))}
                 <div className="mt-6 pt-4 border-t border-white/[0.06] px-4">
-                  <p className="text-[11px] text-white/35 truncate mb-2">{email || "Signed in"}</p>
+                  <p className="text-[11px] text-white/50 truncate mb-0.5">{displayName}</p>
+                  <p className="text-[10px] text-white/30 truncate mb-2">{email}</p>
                   <button
                     type="button"
                     onClick={() => void signOut()}
@@ -287,8 +294,8 @@ export function AppShell({ children, user }: { children: ReactNode; user: User |
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[12px] font-medium text-white/70 truncate">{email || "Workspace"}</div>
-                    <div className="text-[10px] text-white/30">Google</div>
+                    <div className="text-[12px] font-medium text-white/70 truncate">{displayName}</div>
+                    <div className="text-[10px] text-white/30 truncate">{email || "Signed in"}</div>
                   </div>
                 </div>
                 <button

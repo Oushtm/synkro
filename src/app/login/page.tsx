@@ -4,7 +4,7 @@ import { LoginClient } from "./LoginClient";
 
 export const metadata: Metadata = {
   title: "Sign in · Synkro",
-  description: "Sign in with Google to access your Synkro workspace.",
+  description: "Sign in or create an account with email and password.",
 };
 
 function LoginFallback() {

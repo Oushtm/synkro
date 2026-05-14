@@ -8,7 +8,7 @@ Web app for managing appointments (**rendez-vous**): calendar, dashboard, search
 
 - **Next.js** 16 (App Router), **React** 19
 - **TypeScript**, **Tailwind CSS** 4
-- **Supabase** (`@supabase/supabase-js`, `@supabase/ssr`) for PostgreSQL, **Google Sign-In**, and cookie sessions
+- **Supabase** (`@supabase/supabase-js`, `@supabase/ssr`) for PostgreSQL, **email/password auth**, and cookie sessions
 - **Zod** for request validation
 
 ## Prerequisites
@@ -38,12 +38,12 @@ npm install
    - `supabase/migrations/002_appointments_rls_anon.sql` - optional if you previously used anon-only RLS; safe to run (drops/recreates anon policies).
    - `supabase/migrations/003_appointments_user_rls.sql` - adds `user_id`, **per-user RLS** for signed-in users (required for the current app). This deletes orphan rows without an owner.
 
-3. **Authentication (Google)**  
-   In Supabase: **Authentication > Providers > Google**: enable and add Client ID / Secret from [Google Cloud Console](https://console.cloud.google.com/) (OAuth 2.0 Web client).  
-   Under **Authentication > URL Configuration**, add redirect URLs, for example:
+3. **Authentication (email + password)**  
+   In Supabase: **Authentication > Providers > Email** should be enabled (default). For the simplest local experience, you can turn **off** “Confirm email” so new users get a session immediately after sign-up.  
+   If you keep email confirmation on, add these **Redirect URLs** under **Authentication > URL Configuration**:
    - `http://localhost:3000/auth/callback`
    - `https://<your-vercel-app>.vercel.app/auth/callback`  
-   Set **Site URL** to your public origin (e.g. Vercel URL).
+   Set **Site URL** to your app origin (e.g. your Vercel URL).
 
 4. Start the dev server:
 
@@ -51,7 +51,7 @@ npm install
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000). The marketing site is public; **Dashboard**, **Timeline**, **Calendar**, and **Search** require Google sign-in (`/login`).
+   Open [http://localhost:3000](http://localhost:3000). The marketing site is public; **Dashboard**, **Timeline**, **Calendar**, and **Search** require sign-in (`/login`).
 
 ## Scripts
 
@@ -72,8 +72,8 @@ npm install
 | `src/lib/rdv/` | Domain logic (validation, conflicts, sorting) |
 | `src/lib/supabase/` | Env helpers, browser/server/route Supabase clients |
 | `middleware.ts` | Refreshes session cookies; protects `/dashboard`, `/timeline`, `/calendar`, `/search` |
-| `src/app/login/` | Sign-in page (Google) |
-| `src/app/auth/callback/` | OAuth redirect handler |
+| `src/app/login/` | Sign-in / sign-up (email + password + username) |
+| `src/app/auth/callback/` | Finishes email confirmation redirects (PKCE) |
 | `supabase/migrations/` | SQL to run in the Supabase dashboard |
 
 ## Deploy on Vercel

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const redirectTarget = new URL(next, base);
 
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=missing_code", base));
+    return NextResponse.redirect(new URL("/login", base));
   }
 
   const { url: supabaseUrl, anonKey } = getSupabaseEnv();
