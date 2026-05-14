@@ -12,6 +12,17 @@ function safeRedirect(raw: string | null): string {
   return raw;
 }
 
+function friendlyAuthError(msg: string): string {
+  const m = msg.toLowerCase();
+  if (m.includes("rate limit")) {
+    return "Supabase has temporarily blocked too many attempts (anti-spam). Wait about 30–60 minutes before trying again. While testing, turn off “Confirm email” in Supabase (Authentication → Providers → Email) so sign-up does not send an email every time.";
+  }
+  if (m.includes("already registered") || m.includes("user already")) {
+    return "This email is already registered. Use “Sign in” instead of “Create account”.";
+  }
+  return msg;
+}
+
 export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,7 +52,7 @@ export function LoginClient() {
     const { error } = await supabase.auth.signInWithPassword({ email: em, password });
     setBusy(false);
     if (error) {
-      setLocalError(error.message);
+      setLocalError(friendlyAuthError(error.message));
       return;
     }
     router.push(redirect);
@@ -79,7 +90,7 @@ export function LoginClient() {
     });
     setBusy(false);
     if (error) {
-      setLocalError(error.message);
+      setLocalError(friendlyAuthError(error.message));
       return;
     }
     if (data.session) {
@@ -88,7 +99,7 @@ export function LoginClient() {
       return;
     }
     setInfo(
-      "If email confirmation is enabled in Supabase, check your inbox. Otherwise turn off “Confirm email” under Authentication > Providers > Email for instant sign-in while testing.",
+      "Check your inbox and click the confirmation link to finish creating your account. For testing without email, open Supabase → Authentication → Providers → Email and turn off “Confirm email”, then try “Create account” again.",
     );
   }
 
