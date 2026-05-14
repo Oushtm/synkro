@@ -11,7 +11,7 @@ import {
   StatCard, NextAppointmentCard, ScheduleIntelligence,
   WeeklyChart, CategoriesWidget, ActivityFeed,
   isToday, isUpcoming, formatTime, formatDate,
-} from "@/components/dashboard/Widgets";
+} from "@/components/Dashboard/Widgets";
 
 const catColor: Record<string, string> = {
   professionnel: "var(--cat-professionnel)",
