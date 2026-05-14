@@ -10,7 +10,7 @@ import {
   tokenSansEspacesCommeScanfPercentS,
 } from "@/lib/rdv/engine";
 import type { RDV } from "@/lib/rdv/types";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -28,6 +28,7 @@ const ModifySchema = z.object({
 });
 
 export async function DELETE(_: Request, ctx: { params: Promise<{ id: string }> }) {
+  const supabase = getSupabase();
   const { id } = await ctx.params;
   const num = Number(id);
   if (!Number.isFinite(num)) return NextResponse.json({ error: "ID invalide." }, { status: 400 });
@@ -39,6 +40,7 @@ export async function DELETE(_: Request, ctx: { params: Promise<{ id: string }> 
 }
 
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const supabase = getSupabase();
   const { id } = await ctx.params;
   const num = Number(id);
   if (!Number.isFinite(num)) return NextResponse.json({ error: "ID invalide." }, { status: 400 });

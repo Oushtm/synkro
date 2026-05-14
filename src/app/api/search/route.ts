@@ -8,7 +8,7 @@ import {
   tronquerCommeBufferC,
   trierCommeAffichageC,
 } from "@/lib/rdv/engine";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import type { RDV } from "@/lib/rdv/types";
 
 export const runtime = "nodejs";
@@ -38,6 +38,7 @@ export async function GET(req: Request) {
   const parsed = QuerySchema.safeParse(q);
   if (!parsed.success) return NextResponse.json({ error: "Requete invalide." }, { status: 400 });
 
+  const supabase = getSupabase();
   let query = supabase.from("appointments").select("*");
 
   if (parsed.data.type === "id") {

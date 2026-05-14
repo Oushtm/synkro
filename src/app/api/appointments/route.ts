@@ -11,7 +11,7 @@ import {
   tokenSansEspacesCommeScanfPercentS,
   trierCommeAffichageC,
 } from "@/lib/rdv/engine";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import type { RDV } from "@/lib/rdv/types";
 
 export const runtime = "nodejs";
@@ -29,6 +29,7 @@ const AddSchema = z.object({
 });
 
 export async function GET() {
+  const supabase = getSupabase();
   const { data, error } = await supabase.from("appointments").select("*");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   
@@ -36,6 +37,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const supabase = getSupabase();
   const body = AddSchema.safeParse(await req.json().catch(() => null));
   if (!body.success) return NextResponse.json({ error: "Requete invalide." }, { status: 400 });
 
