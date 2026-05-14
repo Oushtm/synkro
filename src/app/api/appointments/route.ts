@@ -11,7 +11,8 @@ import {
   tokenSansEspacesCommeScanfPercentS,
   trierCommeAffichageC,
 } from "@/lib/rdv/engine";
-import { countRDV, insertRDV, listAllRDV } from "@/lib/rdv/jsonStore";
+import { supabase } from "@/lib/supabase";
+import type { RDV } from "@/lib/rdv/types";
 
 export const runtime = "nodejs";
 
@@ -28,15 +29,20 @@ const AddSchema = z.object({
 });
 
 export async function GET() {
-  const all = listAllRDV();
-  return NextResponse.json({ items: trierCommeAffichageC(all) });
+  const { data, error } = await supabase.from("appointments").select("*");
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  
+  return NextResponse.json({ items: trierCommeAffichageC(data as RDV[]) });
 }
 
 export async function POST(req: Request) {
   const body = AddSchema.safeParse(await req.json().catch(() => null));
   if (!body.success) return NextResponse.json({ error: "Requete invalide." }, { status: 400 });
 
-  if (countRDV() >= MAX_RDV) {
+  const { count, error: countError } = await supabase.from("appointments").select("*", { count: "exact", head: true });
+  if (countError) return NextResponse.json({ error: countError.message }, { status: 500 });
+
+  if ((count || 0) >= MAX_RDV) {
     return NextResponse.json({ error: "Le tableau des rendez-vous est plein." }, { status: 409 });
   }
 
@@ -62,10 +68,12 @@ export async function POST(req: Request) {
     );
   }
 
-  const existing = listAllRDV();
+  const { data: existing, error: fetchError } = await supabase.from("appointments").select("*");
+  if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 });
+
   if (
     conflitRendezVous(
-      existing,
+      existing as RDV[],
       body.data.jour,
       body.data.mois,
       body.data.annee,
@@ -82,7 +90,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const created = insertRDV({
+  const { data: created, error: insertError } = await supabase.from("appointments").insert({
     jour: body.data.jour,
     mois: body.data.mois,
     annee: body.data.annee,
@@ -92,7 +100,9 @@ export async function POST(req: Request) {
     minuteFin: body.data.minuteFin,
     lieu,
     categorie,
-  });
+  }).select().single();
+
+  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
   return NextResponse.json({ item: created }, { status: 201 });
 }

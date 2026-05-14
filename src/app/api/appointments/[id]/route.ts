@@ -10,7 +10,7 @@ import {
   tokenSansEspacesCommeScanfPercentS,
 } from "@/lib/rdv/engine";
 import type { RDV } from "@/lib/rdv/types";
-import { getRDVById, listAllRDV, updateRDV, deleteRDVById } from "@/lib/rdv/jsonStore";
+import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 
@@ -32,8 +32,9 @@ export async function DELETE(_: Request, ctx: { params: Promise<{ id: string }> 
   const num = Number(id);
   if (!Number.isFinite(num)) return NextResponse.json({ error: "ID invalide." }, { status: 400 });
 
-  const changes = deleteRDVById(num);
-  if (!changes) return NextResponse.json({ error: "Rendez-vous introuvable." }, { status: 404 });
+  const { error } = await supabase.from("appointments").delete().eq("id", num);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
   return NextResponse.json({ ok: true });
 }
 
@@ -42,13 +43,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const num = Number(id);
   if (!Number.isFinite(num)) return NextResponse.json({ error: "ID invalide." }, { status: 400 });
 
-  const existing = getRDVById(num);
-  if (!existing) return NextResponse.json({ error: "Rendez-vous introuvable." }, { status: 404 });
+  const { data: existing, error: fetchError } = await supabase.from("appointments").select("*").eq("id", num).single();
+  if (fetchError || !existing) return NextResponse.json({ error: "Rendez-vous introuvable." }, { status: 404 });
 
   const body = ModifySchema.safeParse(await req.json().catch(() => null));
   if (!body.success) return NextResponse.json({ error: "Requete invalide." }, { status: 400 });
 
-  // Apply *one* modification like the C menu, then validate period + conflict.
   const patch: Partial<Omit<RDV, "id">> = {};
   if (body.data.mode === "date") {
     const jour = body.data.jour ?? existing.jour;
@@ -74,16 +74,18 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     patch.categorie = categorie as RDV["categorie"];
   }
 
-  const next: RDV = { ...existing, ...patch, id: existing.id };
+  const next: RDV = { ...(existing as RDV), ...patch, id: existing.id };
 
   if (periodeValide(next.heureDebut, next.minuteDebut, next.heureFin, next.minuteFin) === 0) {
     return NextResponse.json({ error: "Modification refusee : heure de debut invalide." }, { status: 409 });
   }
 
-  const all = listAllRDV();
+  const { data: all, error: allFetchError } = await supabase.from("appointments").select("*");
+  if (allFetchError) return NextResponse.json({ error: allFetchError.message }, { status: 500 });
+
   if (
     conflitRendezVous(
-      all,
+      all as RDV[],
       next.jour,
       next.mois,
       next.annee,
@@ -100,7 +102,15 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     );
   }
 
-  const updated = updateRDV(existing.id, patch);
+  const { data: updated, error: updateError } = await supabase
+    .from("appointments")
+    .update(patch)
+    .eq("id", num)
+    .select()
+    .single();
+
+  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
+
   return NextResponse.json({ item: updated });
 }
 
