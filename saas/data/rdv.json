@@ -1,0 +1,17 @@
+{
+  "prochainID": 7,
+  "items": [
+    {
+      "id": 6,
+      "jour": 14,
+      "mois": 5,
+      "annee": 2026,
+      "heureDebut": 9,
+      "minuteDebut": 30,
+      "heureFin": 10,
+      "minuteFin": 30,
+      "lieu": "Emsi",
+      "categorie": "personnel"
+    }
+  ]
+}
