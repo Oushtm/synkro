@@ -11,7 +11,8 @@ import {
   tokenSansEspacesCommeScanfPercentS,
   trierCommeAffichageC,
 } from "@/lib/rdv/engine";
-import { getSupabase } from "@/lib/supabase";
+import { createSupabaseRouteHandler } from "@/lib/supabase/route-handler";
+import { getSessionUser } from "@/lib/supabase/session";
 import type { RDV } from "@/lib/rdv/types";
 
 export const runtime = "nodejs";
@@ -29,15 +30,21 @@ const AddSchema = z.object({
 });
 
 export async function GET() {
-  const supabase = getSupabase();
+  const supabase = await createSupabaseRouteHandler();
+  const user = await getSessionUser(supabase);
+  if (!user) return NextResponse.json({ error: "Non authentifie." }, { status: 401 });
+
   const { data, error } = await supabase.from("appointments").select("*");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  
+
   return NextResponse.json({ items: trierCommeAffichageC(data as RDV[]) });
 }
 
 export async function POST(req: Request) {
-  const supabase = getSupabase();
+  const supabase = await createSupabaseRouteHandler();
+  const user = await getSessionUser(supabase);
+  if (!user) return NextResponse.json({ error: "Non authentifie." }, { status: 401 });
+
   const body = AddSchema.safeParse(await req.json().catch(() => null));
   if (!body.success) return NextResponse.json({ error: "Requete invalide." }, { status: 400 });
 
@@ -92,20 +99,24 @@ export async function POST(req: Request) {
     );
   }
 
-  const { data: created, error: insertError } = await supabase.from("appointments").insert({
-    jour: body.data.jour,
-    mois: body.data.mois,
-    annee: body.data.annee,
-    heureDebut: body.data.heureDebut,
-    minuteDebut: body.data.minuteDebut,
-    heureFin: body.data.heureFin,
-    minuteFin: body.data.minuteFin,
-    lieu,
-    categorie,
-  }).select().single();
+  const { data: created, error: insertError } = await supabase
+    .from("appointments")
+    .insert({
+      jour: body.data.jour,
+      mois: body.data.mois,
+      annee: body.data.annee,
+      heureDebut: body.data.heureDebut,
+      minuteDebut: body.data.minuteDebut,
+      heureFin: body.data.heureFin,
+      minuteFin: body.data.minuteFin,
+      lieu,
+      categorie,
+      user_id: user.id,
+    })
+    .select()
+    .single();
 
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
 
   return NextResponse.json({ item: created }, { status: 201 });
 }
-

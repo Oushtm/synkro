@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef, type ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
 import { ToastProvider } from "@/components/ui/Toast";
 import Image from "next/image";
+import { createSupabaseBrowser } from "@/lib/supabase/browser";
 
 /* ── Consistent spacing tokens ──
  * Sidebar outer:       px-4 (16px each side)  → 256 - 32 = 224px content width
@@ -140,9 +142,18 @@ function SidebarMouseGlow({ containerRef }: { containerRef: React.RefObject<HTML
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, user }: { children: ReactNode; user: User | null }) {
   const [mobileNav, setMobileNav] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
+
+  async function signOut() {
+    const supabase = createSupabaseBrowser();
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  }
+
+  const email = user?.email ?? "";
+  const initial = email ? email[0]!.toUpperCase() : "?";
 
   return (
     <ToastProvider>
@@ -185,6 +196,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <NavItem {...item} />
                   </div>
                 ))}
+                <div className="mt-6 pt-4 border-t border-white/[0.06] px-4">
+                  <p className="text-[11px] text-white/35 truncate mb-2">{email || "Signed in"}</p>
+                  <button
+                    type="button"
+                    onClick={() => void signOut()}
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 text-xs text-white/60 hover:bg-white/[0.07] hover:text-white/80 transition"
+                  >
+                    Sign out
+                  </button>
+                </div>
               </nav>
             </motion.div>
           )}
@@ -243,6 +264,41 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* ── Bottom widgets ──
                  Full width within the sidebar inset — no extra px wrapper */}
             <div className="mt-auto flex flex-col gap-3 relative z-10">
+
+              {/* Account */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/25 mb-3">Account</div>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="h-9 w-9 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white/90 overflow-hidden"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(108,92,231,0.5), rgba(0,212,255,0.35))",
+                      boxShadow: "0 0 12px rgba(108,92,231,0.25)",
+                    }}
+                  >
+                    {user?.user_metadata?.avatar_url ? (
+                      <img
+                        src={String(user.user_metadata.avatar_url)}
+                        alt=""
+                        className="h-9 w-9 object-cover"
+                      />
+                    ) : (
+                      initial
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12px] font-medium text-white/70 truncate">{email || "Workspace"}</div>
+                    <div className="text-[10px] text-white/30">Google</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  className="mt-3 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] py-2 text-[11px] text-white/45 hover:bg-white/[0.06] hover:text-white/70 transition"
+                >
+                  Sign out
+                </button>
+              </div>
 
               {/* Schedule Health */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 relative overflow-hidden">

@@ -1,4 +1,4 @@
-# Synkro
+﻿# Synkro
 
 Web app for managing appointments (**rendez-vous**): calendar, dashboard, search, and timeline. Persistence uses **Supabase** (PostgreSQL) via Next.js API routes.
 
@@ -8,7 +8,7 @@ Web app for managing appointments (**rendez-vous**): calendar, dashboard, search
 
 - **Next.js** 16 (App Router), **React** 19
 - **TypeScript**, **Tailwind CSS** 4
-- **Supabase** (`@supabase/supabase-js`) for the `appointments` table
+- **Supabase** (`@supabase/supabase-js`, `@supabase/ssr`) for PostgreSQL, **Google Sign-In**, and cookie sessions
 - **Zod** for request validation
 
 ## Prerequisites
@@ -33,15 +33,25 @@ npm install
    - `NEXT_PUBLIC_SUPABASE_URL`: project URL (e.g. `https://<ref>.supabase.co`, **not** the `/rest/v1/` URL).
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: **anon** key from Supabase **Settings > API** (never commit the `service_role` key or put it in `NEXT_PUBLIC_*`).
 
-2. Create the database table. In Supabase: open **SQL Editor**, create a new query, paste `supabase/migrations/001_appointments.sql`, then **Run**.
+2. Run SQL migrations in order in the Supabase **SQL Editor** (new query, paste, run):
+   - `supabase/migrations/001_appointments.sql` - creates `appointments`.
+   - `supabase/migrations/002_appointments_rls_anon.sql` - optional if you previously used anon-only RLS; safe to run (drops/recreates anon policies).
+   - `supabase/migrations/003_appointments_user_rls.sql` - adds `user_id`, **per-user RLS** for signed-in users (required for the current app). This deletes orphan rows without an owner.
 
-3. Start the dev server:
+3. **Authentication (Google)**  
+   In Supabase: **Authentication > Providers > Google**: enable and add Client ID / Secret from [Google Cloud Console](https://console.cloud.google.com/) (OAuth 2.0 Web client).  
+   Under **Authentication > URL Configuration**, add redirect URLs, for example:
+   - `http://localhost:3000/auth/callback`
+   - `https://<your-vercel-app>.vercel.app/auth/callback`  
+   Set **Site URL** to your public origin (e.g. Vercel URL).
+
+4. Start the dev server:
 
    ```bash
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000).
+   Open [http://localhost:3000](http://localhost:3000). The marketing site is public; **Dashboard**, **Timeline**, **Calendar**, and **Search** require Google sign-in (`/login`).
 
 ## Scripts
 
@@ -60,7 +70,10 @@ npm install
 | `src/app/api/appointments/` | CRUD API backed by Supabase |
 | `src/app/api/search/` | Search API |
 | `src/lib/rdv/` | Domain logic (validation, conflicts, sorting) |
-| `src/lib/supabase.ts` | Supabase client |
+| `src/lib/supabase/` | Env helpers, browser/server/route Supabase clients |
+| `middleware.ts` | Refreshes session cookies; protects `/dashboard`, `/timeline`, `/calendar`, `/search` |
+| `src/app/login/` | Sign-in page (Google) |
+| `src/app/auth/callback/` | OAuth redirect handler |
 | `supabase/migrations/` | SQL to run in the Supabase dashboard |
 
 ## Deploy on Vercel

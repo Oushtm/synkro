@@ -68,9 +68,9 @@ export function LandingClient() {
           </Link>
           <div className="flex items-center gap-3">
             <Link href="#features" className={["hidden rounded-2xl px-3 py-2 text-[color:var(--muted)] hover:text-[color:var(--foreground)] sm:inline-flex transition-all duration-500", scrolled ? "text-xs" : "text-sm"].join(" ")}>Features</Link>
-            <Link href="/search" className={["hidden rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2 text-[color:var(--muted)] hover:bg-white/[0.06] hover:text-[color:var(--foreground)] sm:inline-flex transition-all duration-500", scrolled ? "text-xs px-3 py-1.5" : "text-sm"].join(" ")}>View Demo</Link>
+            <Link href="/login?redirect=/search" className={["hidden rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2 text-[color:var(--muted)] hover:bg-white/[0.06] hover:text-[color:var(--foreground)] sm:inline-flex transition-all duration-500", scrolled ? "text-xs px-3 py-1.5" : "text-sm"].join(" ")}>View Demo</Link>
             <motion.div whileTap={{ scale: 0.98 }}>
-              <Link href="/dashboard" className={["btn-premium inline-flex items-center justify-center rounded-2xl font-medium text-black btn-glow", scrolled ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"].join(" ")}>
+              <Link href="/login" className={["btn-premium inline-flex items-center justify-center rounded-2xl font-medium text-black btn-glow", scrolled ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"].join(" ")}>
                 <span className="relative z-10">Get Started</span>
               </Link>
             </motion.div>
@@ -108,7 +108,7 @@ export function LandingClient() {
 
               <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0.24} className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <motion.div whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02 }}>
-                  <Link href="/dashboard" className="btn-premium btn-glow inline-flex items-center justify-center rounded-2xl px-7 py-4 text-sm font-semibold text-black">
+                  <Link href="/login" className="btn-premium btn-glow inline-flex items-center justify-center rounded-2xl px-7 py-4 text-sm font-semibold text-black">
                     <span className="relative z-10 flex items-center gap-2">
                       Get Started
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
@@ -116,7 +116,7 @@ export function LandingClient() {
                   </Link>
                 </motion.div>
                 <motion.div whileTap={{ scale: 0.97 }}>
-                  <Link href="/search" className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm text-white hover:bg-white/[0.08] transition-all duration-300 hover:border-white/[0.15]">View Demo</Link>
+                  <Link href="/login?redirect=/search" className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm text-white hover:bg-white/[0.08] transition-all duration-300 hover:border-white/[0.15]">View Demo</Link>
                 </motion.div>
               </motion.div>
 
@@ -286,12 +286,12 @@ export function LandingClient() {
             </div>
             <div className="flex items-center gap-3">
               <motion.div whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02 }}>
-                <Link href="/dashboard" className="btn-premium btn-glow inline-flex items-center justify-center rounded-2xl px-7 py-4 text-sm font-semibold text-black">
+                <Link href="/login" className="btn-premium btn-glow inline-flex items-center justify-center rounded-2xl px-7 py-4 text-sm font-semibold text-black">
                   <span className="relative z-10">Get Started</span>
                 </Link>
               </motion.div>
               <motion.div whileTap={{ scale: 0.97 }}>
-                <Link href="/calendar" className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm text-white hover:bg-white/[0.08] transition-all duration-300">View Demo</Link>
+                <Link href="/login?redirect=/calendar" className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm text-white hover:bg-white/[0.08] transition-all duration-300">View Demo</Link>
               </motion.div>
             </div>
           </div>
@@ -303,9 +303,9 @@ export function LandingClient() {
             © {new Date().getFullYear()} Synkro. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
-            <Link className="hover:text-[color:var(--foreground)] transition" href="/dashboard">App</Link>
-            <Link className="hover:text-[color:var(--foreground)] transition" href="/search">Demo</Link>
-            <Link className="hover:text-[color:var(--foreground)] transition" href="/calendar">Calendar</Link>
+            <Link className="hover:text-[color:var(--foreground)] transition" href="/login">App</Link>
+            <Link className="hover:text-[color:var(--foreground)] transition" href="/login?redirect=/search">Demo</Link>
+            <Link className="hover:text-[color:var(--foreground)] transition" href="/login?redirect=/calendar">Calendar</Link>
           </div>
         </footer>
       </section>

@@ -15,7 +15,7 @@ async function parseJson<T>(res: Response): Promise<T> {
 }
 
 export async function apiListAppointments(): Promise<RDV[]> {
-  const res = await fetch("/api/appointments", { cache: "no-store" });
+  const res = await fetch("/api/appointments", { cache: "no-store", credentials: "include" });
   const data = await parseJson<{ items: RDV[] }>(res);
   return data.items;
 }
@@ -24,6 +24,7 @@ export async function apiAddAppointment(input: Omit<RDV, "id">): Promise<RDV> {
   const res = await fetch("/api/appointments", {
     method: "POST",
     headers: { "content-type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(input),
   });
   const data = await parseJson<{ item: RDV }>(res);
@@ -31,7 +32,7 @@ export async function apiAddAppointment(input: Omit<RDV, "id">): Promise<RDV> {
 }
 
 export async function apiDeleteAppointment(id: number): Promise<void> {
-  const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/appointments/${id}`, { method: "DELETE", credentials: "include" });
   await parseJson<{ ok: true }>(res);
 }
 
@@ -44,6 +45,7 @@ export async function apiModifyAppointment(
   const res = await fetch(`/api/appointments/${id}`, {
     method: "PATCH",
     headers: { "content-type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
   const data = await parseJson<{ item: RDV }>(res);
@@ -56,7 +58,7 @@ export async function apiSearch(params: Record<string, string | number | undefin
     if (v === undefined) continue;
     sp.set(k, String(v));
   }
-  const res = await fetch(`/api/search?${sp.toString()}`, { cache: "no-store" });
+  const res = await fetch(`/api/search?${sp.toString()}`, { cache: "no-store", credentials: "include" });
   const data = await parseJson<{ items: RDV[] }>(res);
   return data.items;
 }
