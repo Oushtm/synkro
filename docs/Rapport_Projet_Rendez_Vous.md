@@ -5,7 +5,7 @@
 **Module :** [À compléter]  
 
 **Titre du projet :**  
-## Application de gestion des rendez-vous en langage C avec site web
+## Application de gestion des rendez-vous en langage C avec application web (Next.js / Supabase)
 
 **Réalisé par (Membres du groupe) :**  
 - Oussama  
@@ -37,7 +37,7 @@ Enfin, nous remercions toute personne ayant contribué, de près ou de loin, à 
 
 Ce rapport présente la conception et le développement d'une application complète de gestion des rendez-vous. Le projet s'articule autour d'un programme principal développé en langage C, permettant de gérer efficacement les emplois du temps à travers une interface console intuitive. L'objectif principal est de fournir une solution logicielle robuste capable de gérer l'ajout, la modification, la consultation, la recherche et la suppression de rendez-vous tout en évitant les conflits horaires.
 
-Pour atteindre cet objectif, nous avons implémenté des algorithmes stricts de validation de données et de contrôle de chevauchement. Parallèlement au développement logiciel, un site web vitrine a été conçu en utilisant les technologies web modernes (React, Next.js, Tailwind CSS) afin de présenter le projet, ses fonctionnalités et son interface aux utilisateurs potentiels.
+Pour atteindre cet objectif, nous avons implémenté des algorithmes stricts de validation de données et de contrôle de chevauchement. Parallèlement au développement logiciel, une **application web complète** a été réalisée avec **React, Next.js, TypeScript et Tailwind CSS** : page d’accueil marketing, **authentification** (compte par e-mail, nom d’utilisateur et mot de passe via **Supabase Auth**), puis **tableau de bord**, calendrier, ligne du temps et recherche branchés sur une **base PostgreSQL (Supabase)**. Les règles métier (validation des dates, catégories, conflits horaires, tri) reprennent la logique du programme C, exposée via des **API REST** sécurisées par session et par **RLS** (sécurité au niveau des lignes : chaque utilisateur ne voit que ses propres rendez-vous).
 
 ---
 
@@ -97,13 +97,16 @@ Le but principal de ce projet est de :
 - Faciliter l'organisation et la planification au quotidien.
 - Éviter catégoriquement les conflits horaires.
 - Améliorer la gestion, la recherche et la consultation des données.
-- Fournir une vitrine numérique de l'outil via un site web dédié.
+- Fournir une **application web** complète (au-delà d’une simple vitrine) avec compte utilisateur et données stockées sur Supabase.
 
 ## Technologies utilisées
-- **Langage C :** Pour le développement logique du cœur de l'application.
+- **Langage C :** Pour le développement logique du cœur de l'application (référence et implémentation initiale).
 - **Terminal / Console :** Pour l'interface utilisateur du programme principal.
-- **React, Next.js, Tailwind CSS :** Pour le développement de l'application web de présentation et de l'interface graphique moderne.
-- **Outils de développement :** Compilateurs C (GCC), IDEs (VS Code), et outils de gestion de version.
+- **React, Next.js, TypeScript, Tailwind CSS :** Pour l'application web (interface, navigation, formulaires).
+- **Supabase (PostgreSQL + Auth) :** Persistance des rendez-vous et comptes utilisateurs ; politiques **RLS** pour isoler les données par utilisateur.
+- **Zod :** Validation des requêtes côté serveur (API).
+- **Vercel (optionnel) :** Hébergement du site en production.
+- **Outils de développement :** Compilateurs C (GCC), IDEs (VS Code), Git, gestionnaire de paquets **npm**.
 
 ## Organisation du rapport
 Ce rapport est structuré en six chapitres. Le premier aborde l'analyse des besoins, le second détaille la conception architecturale et algorithmique. Le troisième chapitre est dédié à l'implémentation en langage C. Le quatrième présente la conception du site web. Le cinquième expose les tests effectués, et enfin, le dernier chapitre discute des difficultés rencontrées et des perspectives d'amélioration.
@@ -132,7 +135,7 @@ Créer une application robuste en langage C permettant une gestion complète et 
 - Rechercher rapidement un événement via plusieurs critères.
 - Trier et afficher les rendez-vous de manière chronologique.
 - Vérifier automatiquement les conflits horaires avant chaque ajout.
-- Accompagner le logiciel d'un site web vitrine pour la présentation.
+- Accompagner le logiciel d’une application web déployable (Vercel) pour la présentation et l’usage réel des rendez-vous en ligne.
 
 ## 1.4 Cahier des charges
 
@@ -248,25 +251,30 @@ La robustesse de l'application repose sur ces fonctions de contrôle :
 # CHAPITRE 4 — SITE WEB DU PROJET
 
 ## 4.1 Présentation du site
-Afin de mettre en valeur notre travail et d'offrir une vitrine professionnelle au projet, un site web a été développé. Son rôle n'est pas d'exécuter le code C, mais de présenter l'application, d'expliquer son fonctionnement et de montrer des captures d'écran de l'interface.
+L’application web **Synkro** complète la partie C : elle ne compile pas le programme dans le navigateur, mais **réutilise les mêmes règles** (dates, plages horaires, catégories, détection de conflits, tri) côté serveur, avec persistance dans **Supabase**. La partie publique (page d’accueil) présente le produit ; l’accès au **tableau de bord**, au **calendrier**, à la **ligne du temps** et à la **recherche** ne se fait qu’après **connexion ou création de compte** (e-mail, nom d’utilisateur, mot de passe).
 
 ## 4.2 Technologies utilisées
-- **React & Next.js :** Pour la création des composants interactifs, la navigation fluide, le rendu performant et la structure globale de l'application web.
-- **Tailwind CSS :** Pour le design, la mise en page, le style responsive et les animations grâce à une approche utilitaire moderne.
-- **TypeScript :** Pour sécuriser et typer le code du frontend, évitant ainsi les erreurs d'exécution.
+- **React & Next.js (App Router) :** Composants interactifs, navigation, pages et routes API (`/api/appointments`, `/api/search`, etc.).
+- **Tailwind CSS :** Mise en page, thème sombre type SaaS, responsive.
+- **TypeScript :** Typage du front et des appels API.
+- **Supabase :** Client `@supabase/supabase-js` et `@supabase/ssr` pour les **sessions** (cookies) ; table `appointments` avec colonne `user_id` liée à `auth.users`.
+- **Zod :** Schémas de validation des corps de requête sur les routes API.
+- **Hébergement :** déploiement possible sur **Vercel** avec variables d’environnement `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 ## 4.3 Structure du site
-Le site est divisé en plusieurs sections clés :
-- **Accueil :** Accroche visuelle et présentation rapide de l'outil.
-- **Présentation :** Explication du contexte académique et des membres de l'équipe.
-- **Fonctionnalités :** Liste détaillée des capacités de l'application (Ajout, Recherche, Gestion des conflits).
-- **Galerie (Captures) :** Visualisation de l'application console en action.
-- **Contact :** Formulaire et informations pour contacter l'équipe de développement.
+- **Page d’accueil (`/`) :** Landing marketing (fonctionnalités, visuels, liens vers connexion).
+- **Authentification (`/login`) :** Onglets *Se connecter* / *Créer un compte* ; après succès, redirection vers le tableau de bord ou la page demandée.
+- **Callback (`/auth/callback`) :** Route utilisée si la **confirmation d’e-mail** est activée dans Supabase (lien magique / PKCE).
+- **Espace connecté (même charte UI, shell latéral) :**
+  - **Tableau de bord (`/dashboard`) :** Vue synthétique et raccourcis.
+  - **Ligne du temps (`/timeline`)** et **Calendrier (`/calendar`) :** visualisations des rendez-vous.
+  - **Recherche (`/search`) :** filtres (ID, date, heure, lieu, catégorie, période) alignés sur la logique C.
+- **API REST :** lecture/écriture des rendez-vous en base ; le middleware Next.js protège les routes pages ; les politiques **RLS** côté Supabase restreignent les lignes au propriétaire.
 
 ## 4.4 Design du site
 Le design a été pensé pour être moderne et de type "SaaS" (Software as a Service). 
 - **Couleurs :** Choix d'une palette contrastée (mode sombre avec des accents lumineux) pour un effet premium.
-- **Expérience Utilisateur (UX) :** Navigation intuitive, animations au survol, et typographie claire.
+- **Expérience Utilisateur (UX) :** Navigation intuitive, animations au survol, et typographie claire ; flux d’inscription / connexion explicite.
 - **Responsive Design :** Le site s'adapte parfaitement aux écrans d'ordinateurs, de tablettes et de téléphones portables.
 
 ---
@@ -281,14 +289,14 @@ L'objectif est de s'assurer que l'application réagit correctement à tous les c
 2. **Ajout invalide :** Tentative de saisie du 31 Février, ou d'une heure de fin antérieure à l'heure de début.
 3. **Conflit horaire :** Tentative d'ajout d'un rendez-vous de 10h à 12h alors qu'un rendez-vous existe de 11h à 13h le même jour.
 4. **Suppression :** Suppression d'un ID inexistant, puis suppression valide et vérification de la nouvelle liste.
-5. **Recherche :** Recherche par une catégorie mal orthographiée.
-
-## 5.3 Résultats obtenus
+6. **Connexion web :** accès refusé aux pages protégées sans session ; après connexion, les rendez-vous créés apparaissent dans Supabase avec le bon `user_id`.
+7. **API (401) :** appel aux routes `/api/...` sans cookie de session : réponse non authentifié, conforme à la sécurité prévue.
 Les résultats ont été conformes aux attentes. Le programme bloque systématiquement les données invalides grâce à nos boucles `do { ... } while(validation() == 0);`. Les conflits horaires sont détectés avec succès, empêchant la superposition d'événements.
 
 ## 5.4 Gestion des erreurs
 - En cas de date erronée, le message *"Date invalide. Recommencez."* s'affiche, et l'utilisateur reste bloqué sur la saisie de la date.
 - En cas de conflit horaire, l'ajout est annulé, le système affiche *"Conflit horaire"* et renvoie l'utilisateur au menu principal.
+- **Application web :** les erreurs de validation renvoyées par l’API (messages JSON) et les messages d’authentification Supabase (ex. limite de tentatives) s’affichent sur la page de connexion ou dans l’interface selon le cas.
 
 ---
 
@@ -298,15 +306,17 @@ Les résultats ont été conformes aux attentes. Le programme bloque systématiq
 - **Gestion des tableaux :** Gérer plusieurs tableaux parallèles pour représenter un seul objet conceptuel (un rendez-vous) s'est avéré complexe, notamment lors de la suppression où il faut décaler tous les tableaux de manière synchronisée.
 - **Logique des conflits horaires :** Traduire le chevauchement horaire en algorithme mathématique sans faille a nécessité plusieurs itérations.
 - **Travail collaboratif :** Intégrer les quatre parties (Oussama, Othmane, Ilyass, Yahya) dans un seul fichier C final tout en évitant les conflits de nommage de variables.
+- **Intégration web :** mise en place des sessions (cookies), du déploiement (Vercel), des politiques RLS et des limites de débit Supabase lors des tests répétés d’inscription.
 
 ## 6.2 Solutions apportées
 - Le problème des chevauchements horaires a été résolu en convertissant toutes les heures en une valeur absolue de minutes (`Heure * 60 + minutes`), ce qui simplifie grandement les comparaisons (`<` et `>`).
 - Une communication constante et une définition claire des signatures de fonctions en amont du codage ont permis une intégration fluide du code de chaque membre.
+- Côté web : factorisation du client Supabase (`src/lib/supabase/`), middleware pour les routes protégées, scripts SQL versionnés (`001` … `003`) et désactivation de la confirmation d’e-mail en phase de test pour limiter les blocages « rate limit ».
 
 ## 6.3 Améliorations futures
-- **Fichiers de sauvegarde :** Implémenter l'écriture et la lecture dans un fichier texte (via `fopen`, `fprintf`) pour conserver les rendez-vous après la fermeture du programme.
-- **Structures (struct) :** Remplacer les multiples tableaux parallèles par un tableau unique de `struct RendezVous` pour optimiser le code.
-- **Interface Graphique / Base de données :** Relier directement le cœur logique de l'application à l'interface Web (Next.js) et utiliser une base de données relationnelle pour la persistance.
+- **Fichiers de sauvegarde (partie C) :** Implémenter l'écriture et la lecture dans un fichier texte (via `fopen`, `fprintf`) pour conserver les rendez-vous après la fermeture du programme console.
+- **Structures (struct) :** Remplacer les multiples tableaux parallèles par un tableau unique de `struct RendezVous` pour optimiser le code C.
+- **Partie web (déjà amorcée) :** La persistance **PostgreSQL (Supabase)** et la liaison avec l’interface **Next.js** sont en place ; poursuivre avec par exemple : réinitialisation de mot de passe, profil utilisateur éditable, tests automatisés (E2E), limitation de débit côté auth pour éviter les blocages « rate limit » en phase de test.
 
 ---
 
@@ -314,7 +324,7 @@ Les résultats ont été conformes aux attentes. Le programme bloque systématiq
 
 Ce projet nous a permis de mettre en pratique nos connaissances théoriques en algorithmique et en langage C, tout en nous initiant aux défis du travail en équipe. L'application de gestion des rendez-vous répond avec succès à toutes les exigences du cahier des charges : elle est stable, sécurisée, empêche les erreurs humaines et fournit une interface console claire.
 
-De plus, la conception du site web vitrine a enrichi notre expérience en nous permettant de toucher au développement web frontend moderne, apportant ainsi une dimension professionnelle complète à notre réalisation. Ce projet constitue une excellente base qui pourra être développée davantage à l'avenir, notamment par l'ajout d'une base de données et d'une interface graphique unifiée.
+De plus, le développement de l’**application web Synkro** (Next.js, Supabase, authentification, déploiement) a enrichi notre expérience du développement full stack et du produit « prêt à montrer » en ligne. La partie C reste la référence algorithmique ; la partie web assure la persistance et l’accès multi-utilisateur. Le projet constitue une base solide pour des extensions futures (mot de passe oublié, tests automatisés, export des données, etc.).
 
 ---
 
@@ -322,13 +332,13 @@ De plus, la conception du site web vitrine a enrichi notre expérience en nous p
 
 - Cours magistraux et travaux dirigés d'algorithmique et programmation en C.
 - Documentation officielle du Langage C (Standard Library `stdio.h`).
-- Tutoriels et documentations web (Documentation officielle de React, Next.js et Tailwind CSS).
+- Tutoriels et documentations web (documentation officielle **React**, **Next.js**, **Tailwind CSS**, **Supabase**).
 - Forums de développement (Stack Overflow) pour la résolution de problèmes spécifiques.
 
 ---
 
 # ANNEXES
 
-- Le code source complet (`prjt.c`) est joint avec le rapport.
-- Le code source du site web (dossier `saas`) est disponible sur le dépôt du projet.
+- Le code source C (`legacy-c/prjt.c`) est joint avec le rapport.
+- Le code source de l’application web **Synkro** se trouve à la **racine du dépôt** (projet Next.js : `src/`, `middleware.ts`, `package.json`, etc.), avec les scripts SQL dans `supabase/migrations/`. Dépôt GitHub : **synkro** (branche `main`). L’ancien dossier `saas/` a été fusionné dans cette structure.
 *(Insérer ici les captures d'écran, diagrammes, organigrammes et le planning de répartition des tâches du projet)*
